@@ -1,0 +1,28 @@
+[project]
+name = "finance"
+version = "0.1.0"
+description = "An AI-powered hedge fund that uses multiple agents to make trading decisions for A-share"
+authors = [
+    {name = "ShqiW",email = "shqiwen@gmail.com"}
+]
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "baostock (==0.8.9)",
+    "langgraph (==0.6.6)",
+    "python-dotenv (==1.1.1)",
+    "langchain-openai (==0.3.30)",
+    "langchain-core (==0.3.74)",
+    "peft (==0.17.0)",
+    "langchain-mcp-adapters (==0.1.9)",
+    "transformers (==4.51.3)",
+    "huggingface-hub (==0.34.4)",
+    "uv (==0.8.12)",
+    "datasets (>=4.0.0,<5.0.0)",
+    "scikit-learn (>=1.7.1,<2.0.0)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"

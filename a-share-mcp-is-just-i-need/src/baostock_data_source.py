@@ -549,72 +549,72 @@ class BaostockDataSource(FinancialDataSource):
             logger.error(f"加载情感模型时出错: {e}")
             return None, None
     
-    def _analyze_risk(self, content: str, model, tokenizer) -> str:
-        """使用风险模型分析内容"""
-        try:
-            if model is None or tokenizer is None:
-                return "模型未加载"
+#     def _analyze_risk(self, content: str, model, tokenizer) -> str:
+#         """使用风险模型分析内容"""
+#         try:
+#             if model is None or tokenizer is None:
+#                 return "模型未加载"
             
-            import torch
+#             import torch
             
-            # 获取模型所在设备
-            device = next(model.parameters()).device
+#             # 获取模型所在设备
+#             device = next(model.parameters()).device
             
-            # 构建风险评估提示词
-            system_prompt = "Forget all your previous instructions. You are a financial expert specializing in risk assessment for stock recommendations. Based on a specific stock, provide a risk score from 1 to 5, where: 1 indicates very low risk, 2 indicates low risk, 3 indicates moderate risk (default if the news lacks any clear indication of risk), 4 indicates high risk, and 5 indicates very high risk. 1 summarized news will be passed in each time. Provide the score in the format shown below in the response from the assistant."
+#             # 构建风险评估提示词
+#             system_prompt = "Forget all your previous instructions. You are a financial expert specializing in risk assessment for stock recommendations. Based on a specific stock, provide a risk score from 1 to 5, where: 1 indicates very low risk, 2 indicates low risk, 3 indicates moderate risk (default if the news lacks any clear indication of risk), 4 indicates high risk, and 5 indicates very high risk. 1 summarized news will be passed in each time. Provide the score in the format shown below in the response from the assistant."
             
-            user_content = f"News to Stock Symbol -- STOCK: {content}"
+#             user_content = f"News to Stock Symbol -- STOCK: {content}"
             
-            prompt = f"""System: {system_prompt}
+#             prompt = f"""System: {system_prompt}
 
-User: News to Stock Symbol -- AAPL: Apple (AAPL) increases 22%
-Assistant: 3
+# User: News to Stock Symbol -- AAPL: Apple (AAPL) increases 22%
+# Assistant: 3
 
-User: News to Stock Symbol -- AAPL: Apple (AAPL) price decreased 30%
-Assistant: 4
+# User: News to Stock Symbol -- AAPL: Apple (AAPL) price decreased 30%
+# Assistant: 4
 
-User: News to Stock Symbol -- AAPL: Apple (AAPL) announced iPhone 15
-Assistant: 3
+# User: News to Stock Symbol -- AAPL: Apple (AAPL) announced iPhone 15
+# Assistant: 3
 
-User: {user_content}
-Assistant:"""
+# User: {user_content}
+# Assistant:"""
             
-            # 编码输入并移动到正确的设备
-            inputs = tokenizer(prompt, return_tensors="pt", truncation=True, max_length=512)
-            inputs = {k: v.to(device) for k, v in inputs.items()}
+#             # 编码输入并移动到正确的设备
+#             inputs = tokenizer(prompt, return_tensors="pt", truncation=True, max_length=512)
+#             inputs = {k: v.to(device) for k, v in inputs.items()}
             
-            # 生成预测
-            with torch.no_grad():
-                outputs = model.generate(
-                    **inputs,
-                    max_new_tokens=5,
-                    do_sample=False,
-                    temperature=0.1,
-                    pad_token_id=tokenizer.eos_token_id
-                )
+#             # 生成预测
+#             with torch.no_grad():
+#                 outputs = model.generate(
+#                     **inputs,
+#                     max_new_tokens=5,
+#                     do_sample=False,
+#                     temperature=0.1,
+#                     pad_token_id=tokenizer.eos_token_id
+#                 )
             
-            # 解码输出
-            generated_text = tokenizer.decode(outputs[0], skip_special_tokens=True)
+#             # 解码输出
+#             generated_text = tokenizer.decode(outputs[0], skip_special_tokens=True)
             
-            # 提取预测的风险分数
-            assistant_response = generated_text.split("Assistant:")[-1].strip()
+#             # 提取预测的风险分数
+#             assistant_response = generated_text.split("Assistant:")[-1].strip()
             
-            # 尝试提取数字
-            try:
-                risk_score = int(assistant_response.split()[0])
-                if 1 <= risk_score <= 5:
-                    risk_map = {1: "极低风险", 2: "低风险", 3: "中等风险", 4: "高风险", 5: "极高风险"}
-                    return f"{risk_score} ({risk_map[risk_score]})"
-            except:
-                pass
+#             # 尝试提取数字
+#             try:
+#                 risk_score = int(assistant_response.split()[0])
+#                 if 1 <= risk_score <= 5:
+#                     risk_map = {1: "极低风险", 2: "低风险", 3: "中等风险", 4: "高风险", 5: "极高风险"}
+#                     return f"{risk_score} ({risk_map[risk_score]})"
+#             except:
+#                 pass
             
-            return "无法分析风险"
+#             return "无法分析风险"
             
-        except Exception as e:
-            logger.error(f"风险分析时出错: {e}")
-            return f"风险分析失败: {str(e)}"
+#         except Exception as e:
+#             logger.error(f"风险分析时出错: {e}")
+#             return f"风险分析失败: {str(e)}"
     
-    def _analyze_sentiment(self, content: str, model, tokenizer) -> str:
+#     def _analyze_sentiment(self, content: str, model, tokenizer) -> str:
         """使用情感模型分析内容"""
         try:
             if model is None or tokenizer is None:
