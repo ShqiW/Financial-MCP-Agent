@@ -11,12 +11,8 @@ from src.formatting.markdown_formatter import format_df_to_markdown
 logger = logging.getLogger(__name__)
 
 
-def safe_data_fetch(
-    func_name: str,
-    data_source_func: Callable,
-    *args,
-    **kwargs
-) -> str:
+def safe_data_fetch(func_name: str, data_source_func: Callable, *args,
+                    **kwargs) -> str:
     """
     安全的数据获取函数，统一处理所有异常和错误情况
     
@@ -32,11 +28,13 @@ def safe_data_fetch(
     try:
         # 调用数据源函数
         df = data_source_func(*args, **kwargs)
-        
+
         # 格式化结果
-        logger.info(f"Successfully retrieved data for {func_name}, formatting to Markdown.")
+        logger.info(
+            f"Successfully retrieved data for {func_name}, formatting to Markdown."
+        )
         return format_df_to_markdown(df)
-        
+
     except NoDataFoundError as e:
         logger.warning(f"NoDataFoundError for {func_name}: {e}")
         return f"Error: {e}"
@@ -54,7 +52,8 @@ def safe_data_fetch(
         return f"Error: An unexpected error occurred: {e}"
 
 
-def register_stock_market_tools(app: FastMCP, active_data_source: FinancialDataSource):
+def register_stock_market_tools(app: FastMCP,
+                                active_data_source: FinancialDataSource):
     """
     向MCP应用注册股票市场数据工具
 
@@ -101,8 +100,9 @@ def register_stock_market_tools(app: FastMCP, active_data_source: FinancialDataS
             如果结果集太大，表格可能会被截断
         """
         logger.info(
-            f"Tool 'get_historical_k_data' called for {code} ({start_date}-{end_date}, freq={frequency}, adj={adjust_flag}, fields={fields})")
-        
+            f"Tool 'get_historical_k_data' called for {code} ({start_date}-{end_date}, freq={frequency}, adj={adjust_flag}, fields={fields})"
+        )
+
         # 验证频率和调整标志
         valid_freqs = ['d', 'w', 'm', '5', '15', '30', '60']
         valid_adjusts = ['1', '2', '3']
@@ -126,7 +126,8 @@ def register_stock_market_tools(app: FastMCP, active_data_source: FinancialDataS
         )
 
     @app.tool()
-    def get_stock_basic_info(code: str, fields: Optional[List[str]] = None) -> str:
+    def get_stock_basic_info(code: str,
+                             fields: Optional[List[str]] = None) -> str:
         """
         获取给定中国A股股票的基本信息
 
@@ -141,7 +142,7 @@ def register_stock_market_tools(app: FastMCP, active_data_source: FinancialDataS
         """
         logger.info(
             f"Tool 'get_stock_basic_info' called for {code} (fields={fields})")
-        
+
         # 使用通用函数处理数据获取
         return safe_data_fetch(
             "get_stock_basic_info",
@@ -151,7 +152,9 @@ def register_stock_market_tools(app: FastMCP, active_data_source: FinancialDataS
         )
 
     @app.tool()
-    def get_dividend_data(code: str, year: str, year_type: str = "report") -> str:
+    def get_dividend_data(code: str,
+                          year: str,
+                          year_type: str = "report") -> str:
         """
         获取给定股票代码和年份的分红信息
 
@@ -167,8 +170,9 @@ def register_stock_market_tools(app: FastMCP, active_data_source: FinancialDataS
             包含分红数据表的Markdown格式字符串，或错误消息
         """
         logger.info(
-            f"Tool 'get_dividend_data' called for {code}, year={year}, year_type={year_type}")
-        
+            f"Tool 'get_dividend_data' called for {code}, year={year}, year_type={year_type}"
+        )
+
         # 基本验证
         if year_type not in ['report', 'operate']:
             logger.warning(f"Invalid year_type requested: {year_type}")
@@ -187,7 +191,8 @@ def register_stock_market_tools(app: FastMCP, active_data_source: FinancialDataS
         )
 
     @app.tool()
-    def get_adjust_factor_data(code: str, start_date: str, end_date: str) -> str:
+    def get_adjust_factor_data(code: str, start_date: str,
+                               end_date: str) -> str:
         """
         获取给定股票代码和日期范围的复权因子数据
         使用Baostock的"涨跌幅复权算法"因子。用于计算复权价格
@@ -201,8 +206,9 @@ def register_stock_market_tools(app: FastMCP, active_data_source: FinancialDataS
             包含复权因子数据表的Markdown格式字符串，或错误消息
         """
         logger.info(
-            f"Tool 'get_adjust_factor_data' called for {code} ({start_date} to {end_date})")
-        
+            f"Tool 'get_adjust_factor_data' called for {code} ({start_date} to {end_date})"
+        )
+
         # 使用通用函数处理数据获取
         return safe_data_fetch(
             "get_adjust_factor_data",

@@ -8,19 +8,21 @@ from contextlib import contextmanager
 from typing import List, Optional, Callable, Any
 from .data_source_interface import LoginError, DataSourceError, NoDataFoundError
 
+
 # --- 日志设置 ---
 def setup_logging(level=logging.INFO):
     """配置应用程序的基本日志记录"""
     logging.basicConfig(
         level=level,
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        datefmt='%Y-%m-%d %H:%M:%S'
-    )
+        datefmt='%Y-%m-%d %H:%M:%S')
     # 可选地静音依赖项的日志，如果它们太冗长的话
     # logging.getLogger("mcp").setLevel(logging.WARNING)
 
+
 # 获取此模块的日志记录器实例（可选，但这是好习惯）
 logger = logging.getLogger(__name__)
+
 
 # --- Baostock上下文管理器 ---
 @contextmanager
@@ -68,16 +70,13 @@ def baostock_login_context():
         os.close(saved_stdout_fd)
         logger.info("Baostock logout successful.")
 
+
 # --- 通用数据获取函数 ---
 
-def fetch_financial_data(
-    bs_query_func: Callable,
-    data_type_name: str,
-    code: str,
-    year: str,
-    quarter: int,
-    **kwargs
-) -> pd.DataFrame:
+
+def fetch_financial_data(bs_query_func: Callable, data_type_name: str,
+                         code: str, year: str, quarter: int,
+                         **kwargs) -> pd.DataFrame:
     """
     通用的财务数据获取函数
     
@@ -98,8 +97,9 @@ def fetch_financial_data(
         DataSourceError: 数据源错误
     """
     logger.info(
-        f"Fetching {data_type_name} data for {code}, year={year}, quarter={quarter}")
-    
+        f"Fetching {data_type_name} data for {code}, year={year}, quarter={quarter}"
+    )
+
     try:
         # 使用登录上下文管理器确保API连接正常
         with baostock_login_context():
@@ -109,17 +109,21 @@ def fetch_financial_data(
             # 检查API返回的错误码，'0'表示成功
             if rs.error_code != '0':
                 logger.error(
-                    f"Baostock API error ({data_type_name}) for {code}: {rs.error_msg} (code: {rs.error_code})")
-                
+                    f"Baostock API error ({data_type_name}) for {code}: {rs.error_msg} (code: {rs.error_code})"
+                )
+
                 # 区分"无数据"和"API错误"两种情况
-                if "no record found" in rs.error_msg.lower() or rs.error_code == '10002':
+                if "no record found" in rs.error_msg.lower(
+                ) or rs.error_code == '10002':
                     # 10002是常见的无数据错误码
                     raise NoDataFoundError(
-                        f"No {data_type_name} data found for {code}, {year}Q{quarter}. Baostock msg: {rs.error_msg}")
+                        f"No {data_type_name} data found for {code}, {year}Q{quarter}. Baostock msg: {rs.error_msg}"
+                    )
                 else:
                     # 其他API错误
                     raise DataSourceError(
-                        f"Baostock API error fetching {data_type_name} data: {rs.error_msg} (code: {rs.error_code})")
+                        f"Baostock API error fetching {data_type_name} data: {rs.error_msg} (code: {rs.error_code})"
+                    )
 
             # 遍历结果集，收集所有数据行
             data_list = []
@@ -129,20 +133,24 @@ def fetch_financial_data(
             # 检查是否为空结果集
             if not data_list:
                 logger.warning(
-                    f"No {data_type_name} data found for {code}, {year}Q{quarter} (empty result set from Baostock).")
+                    f"No {data_type_name} data found for {code}, {year}Q{quarter} (empty result set from Baostock)."
+                )
                 raise NoDataFoundError(
-                    f"No {data_type_name} data found for {code}, {year}Q{quarter} (empty result set).")
+                    f"No {data_type_name} data found for {code}, {year}Q{quarter} (empty result set)."
+                )
 
             # 将数据转换为pandas DataFrame，使用rs.fields作为列名
             result_df = pd.DataFrame(data_list, columns=rs.fields)
             logger.info(
-                f"Retrieved {len(result_df)} {data_type_name} records for {code}, {year}Q{quarter}.")
+                f"Retrieved {len(result_df)} {data_type_name} records for {code}, {year}Q{quarter}."
+            )
             return result_df
 
     except (LoginError, NoDataFoundError, DataSourceError, ValueError) as e:
         # 已知异常直接重新抛出，不做额外处理
         logger.warning(
-            f"Caught known error fetching {data_type_name} data for {code}: {type(e).__name__}")
+            f"Caught known error fetching {data_type_name} data for {code}: {type(e).__name__}"
+        )
         raise e
     except Exception as e:
         # 未预期的异常，记录详细信息并包装为DataSourceError
@@ -152,12 +160,10 @@ def fetch_financial_data(
             f"Unexpected error fetching {data_type_name} data: {e}")
 
 
-def fetch_index_constituent_data(
-    bs_query_func: Callable,
-    index_name: str,
-    date: Optional[str] = None,
-    **kwargs
-) -> pd.DataFrame:
+def fetch_index_constituent_data(bs_query_func: Callable,
+                                 index_name: str,
+                                 date: Optional[str] = None,
+                                 **kwargs) -> pd.DataFrame:
     """
     通用的指数成分股数据获取函数
     
@@ -177,7 +183,7 @@ def fetch_index_constituent_data(
     """
     logger.info(
         f"Fetching {index_name} constituents for date={date or 'latest'}")
-    
+
     try:
         # 使用登录上下文管理器确保API连接正常
         with baostock_login_context():
@@ -187,17 +193,21 @@ def fetch_index_constituent_data(
             # 检查API返回的错误码，'0'表示成功
             if rs.error_code != '0':
                 logger.error(
-                    f"Baostock API error ({index_name} Constituents) for date {date}: {rs.error_msg} (code: {rs.error_code})")
-                
+                    f"Baostock API error ({index_name} Constituents) for date {date}: {rs.error_msg} (code: {rs.error_code})"
+                )
+
                 # 区分"无数据"和"API错误"两种情况
-                if "no record found" in rs.error_msg.lower() or rs.error_code == '10002':
+                if "no record found" in rs.error_msg.lower(
+                ) or rs.error_code == '10002':
                     # 10002是常见的无数据错误码
                     raise NoDataFoundError(
-                        f"No {index_name} constituent data found for date {date}. Baostock msg: {rs.error_msg}")
+                        f"No {index_name} constituent data found for date {date}. Baostock msg: {rs.error_msg}"
+                    )
                 else:
                     # 其他API错误
                     raise DataSourceError(
-                        f"Baostock API error fetching {index_name} constituents: {rs.error_msg} (code: {rs.error_code})")
+                        f"Baostock API error fetching {index_name} constituents: {rs.error_msg} (code: {rs.error_code})"
+                    )
 
             # 遍历结果集，收集所有成分股数据行
             data_list = []
@@ -207,36 +217,40 @@ def fetch_index_constituent_data(
             # 检查是否为空结果集
             if not data_list:
                 logger.warning(
-                    f"No {index_name} constituent data found for date {date} (empty result set).")
+                    f"No {index_name} constituent data found for date {date} (empty result set)."
+                )
                 raise NoDataFoundError(
-                    f"No {index_name} constituent data found for date {date} (empty result set).")
+                    f"No {index_name} constituent data found for date {date} (empty result set)."
+                )
 
             # 将数据转换为pandas DataFrame，使用rs.fields作为列名
             result_df = pd.DataFrame(data_list, columns=rs.fields)
             logger.info(
-                f"Retrieved {len(result_df)} {index_name} constituents for date {date or 'latest'}.")
+                f"Retrieved {len(result_df)} {index_name} constituents for date {date or 'latest'}."
+            )
             return result_df
 
     except (LoginError, NoDataFoundError, DataSourceError, ValueError) as e:
         # 已知异常直接重新抛出，不做额外处理
         logger.warning(
-            f"Caught known error fetching {index_name} constituents for date {date}: {type(e).__name__}")
+            f"Caught known error fetching {index_name} constituents for date {date}: {type(e).__name__}"
+        )
         raise e
     except Exception as e:
         # 未预期的异常，记录详细信息并包装为DataSourceError
         logger.exception(
-            f"Unexpected error fetching {index_name} constituents for date {date}: {e}")
+            f"Unexpected error fetching {index_name} constituents for date {date}: {e}"
+        )
         raise DataSourceError(
-            f"Unexpected error fetching {index_name} constituents for date {date}: {e}")
+            f"Unexpected error fetching {index_name} constituents for date {date}: {e}"
+        )
 
 
-def fetch_macro_data(
-    bs_query_func: Callable,
-    data_type_name: str,
-    start_date: Optional[str] = None,
-    end_date: Optional[str] = None,
-    **kwargs
-) -> pd.DataFrame:
+def fetch_macro_data(bs_query_func: Callable,
+                     data_type_name: str,
+                     start_date: Optional[str] = None,
+                     end_date: Optional[str] = None,
+                     **kwargs) -> pd.DataFrame:
     """
     通用的宏观经济数据获取函数
     
@@ -259,28 +273,33 @@ def fetch_macro_data(
     date_range_log = f"from {start_date or 'default'} to {end_date or 'default'}"
     kwargs_log = f", extra_args={kwargs}" if kwargs else ""
     logger.info(f"Fetching {data_type_name} data {date_range_log}{kwargs_log}")
-    
+
     try:
         # 使用登录上下文管理器确保API连接正常
         with baostock_login_context():
             # 调用传入的Baostock查询函数，传递时间范围和额外参数
             rs = bs_query_func(start_date=start_date,
-                               end_date=end_date, **kwargs)
+                               end_date=end_date,
+                               **kwargs)
 
             # 检查API返回的错误码，'0'表示成功
             if rs.error_code != '0':
                 logger.error(
-                    f"Baostock API error ({data_type_name}): {rs.error_msg} (code: {rs.error_code})")
-                
+                    f"Baostock API error ({data_type_name}): {rs.error_msg} (code: {rs.error_code})"
+                )
+
                 # 区分"无数据"和"API错误"两种情况
-                if "no record found" in rs.error_msg.lower() or rs.error_code == '10002':
+                if "no record found" in rs.error_msg.lower(
+                ) or rs.error_code == '10002':
                     # 10002是常见的无数据错误码
                     raise NoDataFoundError(
-                        f"No {data_type_name} data found for the specified criteria. Baostock msg: {rs.error_msg}")
+                        f"No {data_type_name} data found for the specified criteria. Baostock msg: {rs.error_msg}"
+                    )
                 else:
                     # 其他API错误
                     raise DataSourceError(
-                        f"Baostock API error fetching {data_type_name} data: {rs.error_msg} (code: {rs.error_code})")
+                        f"Baostock API error fetching {data_type_name} data: {rs.error_msg} (code: {rs.error_code})"
+                    )
 
             # 遍历结果集，收集所有宏观经济数据行
             data_list = []
@@ -290,9 +309,11 @@ def fetch_macro_data(
             # 检查是否为空结果集
             if not data_list:
                 logger.warning(
-                    f"No {data_type_name} data found for the specified criteria (empty result set).")
+                    f"No {data_type_name} data found for the specified criteria (empty result set)."
+                )
                 raise NoDataFoundError(
-                    f"No {data_type_name} data found for the specified criteria (empty result set).")
+                    f"No {data_type_name} data found for the specified criteria (empty result set)."
+                )
 
             # 将数据转换为pandas DataFrame，使用rs.fields作为列名
             result_df = pd.DataFrame(data_list, columns=rs.fields)
@@ -303,7 +324,8 @@ def fetch_macro_data(
     except (LoginError, NoDataFoundError, DataSourceError, ValueError) as e:
         # 已知异常直接重新抛出，不做额外处理
         logger.warning(
-            f"Caught known error fetching {data_type_name} data: {type(e).__name__}")
+            f"Caught known error fetching {data_type_name} data: {type(e).__name__}"
+        )
         raise e
     except Exception as e:
         # 未预期的异常，记录详细信息并包装为DataSourceError
@@ -313,11 +335,8 @@ def fetch_macro_data(
             f"Unexpected error fetching {data_type_name} data: {e}")
 
 
-def fetch_generic_data(
-    bs_query_func: Callable,
-    data_type_name: str,
-    **kwargs
-) -> pd.DataFrame:
+def fetch_generic_data(bs_query_func: Callable, data_type_name: str,
+                       **kwargs) -> pd.DataFrame:
     """
     通用的数据获取函数，适用于各种Baostock API调用
     
@@ -337,7 +356,7 @@ def fetch_generic_data(
     # 构建日志消息
     kwargs_log = f" with args: {kwargs}" if kwargs else ""
     logger.info(f"Fetching {data_type_name} data{kwargs_log}")
-    
+
     try:
         # 使用登录上下文管理器确保API连接正常
         with baostock_login_context():
@@ -347,17 +366,21 @@ def fetch_generic_data(
             # 检查API返回的错误码，'0'表示成功
             if rs.error_code != '0':
                 logger.error(
-                    f"Baostock API error ({data_type_name}): {rs.error_msg} (code: {rs.error_code})")
-                
+                    f"Baostock API error ({data_type_name}): {rs.error_msg} (code: {rs.error_code})"
+                )
+
                 # 区分"无数据"和"API错误"两种情况
-                if "no record found" in rs.error_msg.lower() or rs.error_code == '10002':
+                if "no record found" in rs.error_msg.lower(
+                ) or rs.error_code == '10002':
                     # 10002是常见的无数据错误码
                     raise NoDataFoundError(
-                        f"No {data_type_name} data found for the specified criteria. Baostock msg: {rs.error_msg}")
+                        f"No {data_type_name} data found for the specified criteria. Baostock msg: {rs.error_msg}"
+                    )
                 else:
                     # 其他API错误
                     raise DataSourceError(
-                        f"Baostock API error fetching {data_type_name} data: {rs.error_msg} (code: {rs.error_code})")
+                        f"Baostock API error fetching {data_type_name} data: {rs.error_msg} (code: {rs.error_code})"
+                    )
 
             # 遍历结果集，收集所有数据行
             data_list = []
@@ -367,9 +390,11 @@ def fetch_generic_data(
             # 检查是否为空结果集
             if not data_list:
                 logger.warning(
-                    f"No {data_type_name} data found for the specified criteria (empty result set).")
+                    f"No {data_type_name} data found for the specified criteria (empty result set)."
+                )
                 raise NoDataFoundError(
-                    f"No {data_type_name} data found for the specified criteria (empty result set).")
+                    f"No {data_type_name} data found for the specified criteria (empty result set)."
+                )
 
             # 将数据转换为pandas DataFrame，使用rs.fields作为列名
             result_df = pd.DataFrame(data_list, columns=rs.fields)
@@ -380,7 +405,8 @@ def fetch_generic_data(
     except (LoginError, NoDataFoundError, DataSourceError, ValueError) as e:
         # 已知异常直接重新抛出，不做额外处理
         logger.warning(
-            f"Caught known error fetching {data_type_name} data: {type(e).__name__}")
+            f"Caught known error fetching {data_type_name} data: {type(e).__name__}"
+        )
         raise e
     except Exception as e:
         # 未预期的异常，记录详细信息并包装为DataSourceError
@@ -390,7 +416,8 @@ def fetch_generic_data(
             f"Unexpected error fetching {data_type_name} data: {e}")
 
 
-def format_fields(fields: Optional[List[str]], default_fields: List[str]) -> str:
+def format_fields(fields: Optional[List[str]],
+                  default_fields: List[str]) -> str:
     """
     将字段列表格式化为Baostock API所需的逗号分隔字符串
     
@@ -409,10 +436,10 @@ def format_fields(fields: Optional[List[str]], default_fields: List[str]) -> str
         logger.debug(
             f"No specific fields requested, using defaults: {default_fields}")
         return ",".join(default_fields)
-    
+
     # 基本验证：确保所有请求字段都是字符串类型
     if not all(isinstance(f, str) for f in fields):
         raise ValueError("All items in the fields list must be strings.")
-    
+
     logger.debug(f"Using requested fields: {fields}")
     return ",".join(fields)

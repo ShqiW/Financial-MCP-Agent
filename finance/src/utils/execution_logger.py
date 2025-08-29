@@ -58,9 +58,13 @@ class ExecutionLogger:
                 "python_version": os.sys.version,
                 "working_directory": os.getcwd(),
                 "environment_variables": {
-                    "OPENAI_COMPATIBLE_MODEL": os.getenv("OPENAI_COMPATIBLE_MODEL", "Not Set"),
-                    "OPENAI_COMPATIBLE_BASE_URL": os.getenv("OPENAI_COMPATIBLE_BASE_URL", "Not Set"),
-                    "OPENAI_COMPATIBLE_API_KEY": "***" if os.getenv("OPENAI_COMPATIBLE_API_KEY") else "Not Set"
+                    "OPENAI_COMPATIBLE_MODEL":
+                    os.getenv("OPENAI_COMPATIBLE_MODEL", "Not Set"),
+                    "OPENAI_COMPATIBLE_BASE_URL":
+                    os.getenv("OPENAI_COMPATIBLE_BASE_URL", "Not Set"),
+                    "OPENAI_COMPATIBLE_API_KEY":
+                    "***"
+                    if os.getenv("OPENAI_COMPATIBLE_API_KEY") else "Not Set"
                 }
             }
         }
@@ -82,8 +86,12 @@ class ExecutionLogger:
 
         return agent_log
 
-    def log_agent_complete(self, agent_name: str, output_data: Dict[str, Any],
-                           execution_time: float, success: bool = True, error: str = None):
+    def log_agent_complete(self,
+                           agent_name: str,
+                           output_data: Dict[str, Any],
+                           execution_time: float,
+                           success: bool = True,
+                           error: str = None):
         """记录agent执行完成"""
         # 读取现有的agent日志
         agent_file = f"agents/{agent_name}_execution.json"
@@ -103,9 +111,13 @@ class ExecutionLogger:
         self._save_json(agent_log, agent_file)
         return agent_log
 
-    def log_llm_interaction(self, agent_name: str, interaction_type: str,
-                            input_messages: List[Dict], output_content: str,
-                            model_config: Dict[str, Any], execution_time: float,
+    def log_llm_interaction(self,
+                            agent_name: str,
+                            interaction_type: str,
+                            input_messages: List[Dict],
+                            output_content: str,
+                            model_config: Dict[str, Any],
+                            execution_time: float,
                             token_usage: Optional[Dict] = None):
         """记录LLM交互详情"""
         interaction_id = str(uuid.uuid4())[:8]
@@ -117,9 +129,13 @@ class ExecutionLogger:
             "timestamp": datetime.now().isoformat(),
             "model_config": model_config,
             "input": {
-                "messages": input_messages,
-                "message_count": len(input_messages),
-                "total_input_length": sum(len(str(msg.get("content", ""))) for msg in input_messages)
+                "messages":
+                input_messages,
+                "message_count":
+                len(input_messages),
+                "total_input_length":
+                sum(
+                    len(str(msg.get("content", ""))) for msg in input_messages)
             },
             "output": {
                 "content": output_content,
@@ -144,18 +160,33 @@ class ExecutionLogger:
 
         return interaction_log
 
-    def log_tool_usage(self, agent_name: str, tool_name: str, tool_input: Dict,
-                       tool_output: Any, execution_time: float, success: bool = True, error: str = None):
+    def log_tool_usage(self,
+                       agent_name: str,
+                       tool_name: str,
+                       tool_input: Dict,
+                       tool_output: Any,
+                       execution_time: float,
+                       success: bool = True,
+                       error: str = None):
         """记录工具使用情况"""
         tool_log = {
-            "timestamp": datetime.now().isoformat(),
-            "agent_name": agent_name,
-            "tool_name": tool_name,
-            "input": tool_input,
-            "output": str(tool_output)[:1000] + "..." if len(str(tool_output)) > 1000 else str(tool_output),
-            "execution_time_seconds": execution_time,
-            "success": success,
-            "error": error
+            "timestamp":
+            datetime.now().isoformat(),
+            "agent_name":
+            agent_name,
+            "tool_name":
+            tool_name,
+            "input":
+            tool_input,
+            "output":
+            str(tool_output)[:1000] +
+            "..." if len(str(tool_output)) > 1000 else str(tool_output),
+            "execution_time_seconds":
+            execution_time,
+            "success":
+            success,
+            "error":
+            error
         }
 
         # 追加到工具使用日志文件
@@ -226,9 +257,12 @@ class ExecutionLogger:
                 agent_data = self._load_json(f"agents/{agent_file.name}")
                 if agent_data:
                     summary["agents_executed"].append({
-                        "name": agent_data.get("agent_name"),
-                        "success": agent_data.get("success", False),
-                        "execution_time": agent_data.get("execution_time_seconds", 0)
+                        "name":
+                        agent_data.get("agent_name"),
+                        "success":
+                        agent_data.get("success", False),
+                        "execution_time":
+                        agent_data.get("execution_time_seconds", 0)
                     })
 
         # 统计LLM交互次数
@@ -275,7 +309,8 @@ class ExecutionLogger:
 ## Agent执行详情
 """
 
-        for agent in execution_info.get('summary', {}).get('agents_executed', []):
+        for agent in execution_info.get('summary',
+                                        {}).get('agents_executed', []):
             status = '✅ 成功' if agent.get('success') else '❌ 失败'
             summary_text += f"- {agent.get('name', 'Unknown')}: {status} (耗时: {agent.get('execution_time', 0):.2f}s)\n"
 

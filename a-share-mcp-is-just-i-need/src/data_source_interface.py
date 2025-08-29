@@ -3,6 +3,7 @@ from abc import ABC, abstractmethod
 import pandas as pd
 from typing import Optional, List
 
+
 class DataSourceError(Exception):
     """Base exception for data source errors."""
     pass
@@ -86,7 +87,9 @@ class FinancialDataSource(ABC):
         pass
 
     @abstractmethod
-    def get_trade_dates(self, start_date: Optional[str] = None, end_date: Optional[str] = None) -> pd.DataFrame:
+    def get_trade_dates(self,
+                        start_date: Optional[str] = None,
+                        end_date: Optional[str] = None) -> pd.DataFrame:
         """Fetches trading dates information within a range."""
         pass
 
@@ -96,27 +99,40 @@ class FinancialDataSource(ABC):
         pass
 
     @abstractmethod
-    def get_deposit_rate_data(self, start_date: Optional[str] = None, end_date: Optional[str] = None) -> pd.DataFrame:
+    def get_deposit_rate_data(self,
+                              start_date: Optional[str] = None,
+                              end_date: Optional[str] = None) -> pd.DataFrame:
         """Fetches benchmark deposit rates."""
         pass
 
     @abstractmethod
-    def get_loan_rate_data(self, start_date: Optional[str] = None, end_date: Optional[str] = None) -> pd.DataFrame:
+    def get_loan_rate_data(self,
+                           start_date: Optional[str] = None,
+                           end_date: Optional[str] = None) -> pd.DataFrame:
         """Fetches benchmark loan rates."""
         pass
 
     @abstractmethod
-    def get_required_reserve_ratio_data(self, start_date: Optional[str] = None, end_date: Optional[str] = None, year_type: str = '0') -> pd.DataFrame:
+    def get_required_reserve_ratio_data(self,
+                                        start_date: Optional[str] = None,
+                                        end_date: Optional[str] = None,
+                                        year_type: str = '0') -> pd.DataFrame:
         """Fetches required reserve ratio data."""
         pass
 
     @abstractmethod
-    def get_money_supply_data_month(self, start_date: Optional[str] = None, end_date: Optional[str] = None) -> pd.DataFrame:
+    def get_money_supply_data_month(
+            self,
+            start_date: Optional[str] = None,
+            end_date: Optional[str] = None) -> pd.DataFrame:
         """Fetches monthly money supply data (M0, M1, M2)."""
         pass
 
     @abstractmethod
-    def get_money_supply_data_year(self, start_date: Optional[str] = None, end_date: Optional[str] = None) -> pd.DataFrame:
+    def get_money_supply_data_year(
+            self,
+            start_date: Optional[str] = None,
+            end_date: Optional[str] = None) -> pd.DataFrame:
         """Fetches yearly money supply data (M0, M1, M2 - year end balance)."""
         pass
 

@@ -16,7 +16,7 @@ def setup_logger(name: str, log_dir: Optional[str] = None) -> logging.Logger:
     """
     # 设置 root logger 的级别为 DEBUG
     logging.getLogger().setLevel(logging.DEBUG)
-    
+
     # 抑制第三方库的冗余输出
     logging.getLogger("transformers").setLevel(logging.ERROR)
     logging.getLogger("accelerate").setLevel(logging.ERROR)
@@ -44,14 +44,15 @@ def setup_logger(name: str, log_dir: Optional[str] = None) -> logging.Logger:
     # 创建格式化器
     formatter = logging.Formatter(
         '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        datefmt='%Y-%m-%d %H:%M:%S'
-    )
+        datefmt='%Y-%m-%d %H:%M:%S')
     console_handler.setFormatter(formatter)
 
     # 创建文件处理器
     if log_dir is None:
-        log_dir = os.path.join(os.path.dirname(os.path.dirname(
-            os.path.dirname(os.path.abspath(__file__)))), 'logs')
+        log_dir = os.path.join(
+            os.path.dirname(
+                os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
+            'logs')
     os.makedirs(log_dir, exist_ok=True)
     log_file = os.path.join(log_dir, f"{name}.log")
     file_handler = logging.FileHandler(log_file, encoding='utf-8')

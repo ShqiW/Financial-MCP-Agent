@@ -12,12 +12,8 @@ from src.data_source_interface import NoDataFoundError, LoginError, DataSourceEr
 logger = logging.getLogger(__name__)
 
 
-def safe_data_source_call(
-    tool_name: str,
-    data_source_method: Callable,
-    data_type_name: str,
-    **kwargs
-) -> str:
+def safe_data_source_call(tool_name: str, data_source_method: Callable,
+                          data_type_name: str, **kwargs) -> str:
     """
     通用的安全数据源调用函数，统一处理所有异常和错误情况
     
@@ -35,7 +31,7 @@ def safe_data_source_call(
         df = data_source_method(**kwargs)
         logger.info(f"Successfully retrieved {data_type_name} data.")
         return format_df_to_markdown(df)
-        
+
     except NoDataFoundError as e:
         logger.warning(f"NoDataFoundError: {e}")
         return f"Error: {e}"
@@ -54,14 +50,13 @@ def safe_data_source_call(
 
 
 def call_financial_data_tool(
-    tool_name: str,
-    # 传递绑定的方法，如 active_data_source.get_profit_data
-    data_source_method: Callable,
-    data_type_name: str,
-    code: str,
-    year: str,
-    quarter: int
-) -> str:
+        tool_name: str,
+        # 传递绑定的方法，如 active_data_source.get_profit_data
+        data_source_method: Callable,
+        data_type_name: str,
+        code: str,
+        year: str,
+        quarter: int) -> str:
     """
     用于减少财务数据工具重复代码的辅助函数
 
@@ -89,7 +84,8 @@ def call_financial_data_tool(
         # 调用已实例化的active_data_source上的相应方法
         df = data_source_method(code=code, year=year, quarter=quarter)
         logger.info(
-            f"Successfully retrieved {data_type_name} data for {code}, {year}Q{quarter}.")
+            f"Successfully retrieved {data_type_name} data for {code}, {year}Q{quarter}."
+        )
         # 对财务表格使用较小的限制？
         return format_df_to_markdown(df)
 
@@ -112,12 +108,12 @@ def call_financial_data_tool(
 
 
 def call_macro_data_tool(
-    tool_name: str,
-    data_source_method: Callable,
-    data_type_name: str,
-    start_date: Optional[str] = None,
-    end_date: Optional[str] = None,
-    **kwargs  # 用于额外参数，如 year_type
+        tool_name: str,
+        data_source_method: Callable,
+        data_type_name: str,
+        start_date: Optional[str] = None,
+        end_date: Optional[str] = None,
+        **kwargs  # 用于额外参数，如 year_type
 ) -> str:
     """
     宏观经济数据工具的辅助函数
@@ -136,23 +132,19 @@ def call_macro_data_tool(
     date_range_log = f"from {start_date or 'default'} to {end_date or 'default'}"
     kwargs_log = f", extra_args={kwargs}" if kwargs else ""
     logger.info(f"Tool '{tool_name}' called {date_range_log}{kwargs_log}")
-    
-    return safe_data_source_call(
-        tool_name,
-        data_source_method,
-        data_type_name,
-        start_date=start_date,
-        end_date=end_date,
-        **kwargs
-    )
+
+    return safe_data_source_call(tool_name,
+                                 data_source_method,
+                                 data_type_name,
+                                 start_date=start_date,
+                                 end_date=end_date,
+                                 **kwargs)
 
 
-def call_index_constituent_tool(
-    tool_name: str,
-    data_source_method: Callable,
-    index_name: str,
-    date: Optional[str] = None
-) -> str:
+def call_index_constituent_tool(tool_name: str,
+                                data_source_method: Callable,
+                                index_name: str,
+                                date: Optional[str] = None) -> str:
     """
     指数成分股工具的辅助函数
 
@@ -167,10 +159,8 @@ def call_index_constituent_tool(
     """
     log_msg = f"Tool '{tool_name}' called for date={date or 'latest'}"
     logger.info(log_msg)
-    
-    return safe_data_source_call(
-        tool_name,
-        data_source_method,
-        index_name,
-        date=date
-    )
+
+    return safe_data_source_call(tool_name,
+                                 data_source_method,
+                                 index_name,
+                                 date=date)

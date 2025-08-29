@@ -12,7 +12,8 @@ from src.tools.base import call_index_constituent_tool
 logger = logging.getLogger(__name__)
 
 
-def register_index_tools(app: FastMCP, active_data_source: FinancialDataSource):
+def register_index_tools(app: FastMCP,
+                         active_data_source: FinancialDataSource):
     """
     向MCP应用注册指数相关工具
 
@@ -22,7 +23,8 @@ def register_index_tools(app: FastMCP, active_data_source: FinancialDataSource):
     """
 
     @app.tool()
-    def get_stock_industry(code: Optional[str] = None, date: Optional[str] = None) -> str:
+    def get_stock_industry(code: Optional[str] = None,
+                           date: Optional[str] = None) -> str:
         """
         获取指定股票或指定日期所有股票的行业分类数据
 
@@ -39,13 +41,13 @@ def register_index_tools(app: FastMCP, active_data_source: FinancialDataSource):
             # 如果需要，可以添加日期验证
             df = active_data_source.get_stock_industry(code=code, date=date)
             logger.info(
-                f"Successfully retrieved industry data for {code or 'all'}, {date or 'latest'}.")
+                f"Successfully retrieved industry data for {code or 'all'}, {date or 'latest'}."
+            )
             from src.formatting.markdown_formatter import format_df_to_markdown
             return format_df_to_markdown(df)
 
         except Exception as e:
-            logger.exception(
-                f"Exception processing get_stock_industry: {e}")
+            logger.exception(f"Exception processing get_stock_industry: {e}")
             return f"Error: An unexpected error occurred: {e}"
 
     @app.tool()
@@ -59,12 +61,9 @@ def register_index_tools(app: FastMCP, active_data_source: FinancialDataSource):
         返回:
             包含深证50指数成分股的Markdown表格或错误消息
         """
-        return call_index_constituent_tool(
-            "get_sz50_stocks",
-            active_data_source.get_sz50_stocks,
-            "深证50",
-            date
-        )
+        return call_index_constituent_tool("get_sz50_stocks",
+                                           active_data_source.get_sz50_stocks,
+                                           "深证50", date)
 
     @app.tool()
     def get_hs300_stocks(date: Optional[str] = None) -> str:
@@ -77,12 +76,9 @@ def register_index_tools(app: FastMCP, active_data_source: FinancialDataSource):
         返回:
             包含沪深300指数成分股的Markdown表格或错误消息
         """
-        return call_index_constituent_tool(
-            "get_hs300_stocks",
-            active_data_source.get_hs300_stocks,
-            "沪深300",
-            date
-        )
+        return call_index_constituent_tool("get_hs300_stocks",
+                                           active_data_source.get_hs300_stocks,
+                                           "沪深300", date)
 
     @app.tool()
     def get_zz500_stocks(date: Optional[str] = None) -> str:
@@ -95,9 +91,6 @@ def register_index_tools(app: FastMCP, active_data_source: FinancialDataSource):
         返回:
             包含中证500指数成分股的Markdown表格或错误消息
         """
-        return call_index_constituent_tool(
-            "get_zz500_stocks",
-            active_data_source.get_zz500_stocks,
-            "中证500",
-            date
-        )
+        return call_index_constituent_tool("get_zz500_stocks",
+                                           active_data_source.get_zz500_stocks,
+                                           "中证500", date)

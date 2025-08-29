@@ -12,7 +12,8 @@ from src.data_source_interface import FinancialDataSource
 logger = logging.getLogger(__name__)
 
 
-def register_date_utils_tools(app: FastMCP, active_data_source: FinancialDataSource):
+def register_date_utils_tools(app: FastMCP,
+                              active_data_source: FinancialDataSource):
     """
     向MCP应用注册日期工具
 
@@ -49,17 +50,18 @@ def register_date_utils_tools(app: FastMCP, active_data_source: FinancialDataSou
             start_date = (datetime.now().replace(day=1)).strftime("%Y-%m-%d")
             end_date = (datetime.now().replace(day=28)).strftime("%Y-%m-%d")
 
-            df = active_data_source.get_trade_dates(
-                start_date=start_date, end_date=end_date)
+            df = active_data_source.get_trade_dates(start_date=start_date,
+                                                    end_date=end_date)
 
             # 筛选出最近的交易日
-            valid_trading_days = df[df['is_trading_day']
-                                    == '1']['calendar_date'].tolist()
+            valid_trading_days = df[df['is_trading_day'] ==
+                                    '1']['calendar_date'].tolist()
 
             # 找出小于等于今天的最大日期
             latest_trading_date = None
             for date in valid_trading_days:
-                if date <= today and (latest_trading_date is None or date > latest_trading_date):
+                if date <= today and (latest_trading_date is None
+                                      or date > latest_trading_date):
                     latest_trading_date = date
 
             if latest_trading_date:
@@ -68,7 +70,8 @@ def register_date_utils_tools(app: FastMCP, active_data_source: FinancialDataSou
                 return latest_trading_date
             else:
                 logger.warning(
-                    "No trading dates found before today, returning today's date")
+                    "No trading dates found before today, returning today's date"
+                )
                 return today
 
         except Exception as e:
@@ -92,7 +95,8 @@ def register_date_utils_tools(app: FastMCP, active_data_source: FinancialDataSou
             包含分析时间范围的详细描述字符串，格式为"YYYY年M月-YYYY年M月"。
         """
         logger.info(
-            f"Tool 'get_market_analysis_timeframe' called with period={period}")
+            f"Tool 'get_market_analysis_timeframe' called with period={period}"
+        )
 
         now = datetime.now()
         end_date = now
@@ -155,8 +159,8 @@ def register_date_utils_tools(app: FastMCP, active_data_source: FinancialDataSou
             return calendar.monthrange(year, month)[1]
 
         # 确保结束日期不超过当前日期
-        end_day = min(get_month_end_day(
-            end_date.year, end_date.month), end_date.day)
+        end_day = min(get_month_end_day(end_date.year, end_date.month),
+                      end_date.day)
         end_display_date = f"{end_date.year}年{end_date.month}月"
         end_iso_date = f"{end_date.year}-{end_date.month:02d}-{end_day:02d}"
 

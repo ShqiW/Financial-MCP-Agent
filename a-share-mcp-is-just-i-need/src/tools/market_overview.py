@@ -12,12 +12,8 @@ from src.formatting.markdown_formatter import format_df_to_markdown
 logger = logging.getLogger(__name__)
 
 
-def safe_market_data_fetch(
-    func_name: str,
-    data_source_func,
-    data_type: str,
-    **kwargs
-) -> str:
+def safe_market_data_fetch(func_name: str, data_source_func, data_type: str,
+                           **kwargs) -> str:
     """
     安全的市场数据获取函数，统一处理所有异常和错误情况
     
@@ -35,7 +31,7 @@ def safe_market_data_fetch(
         df = data_source_func(**kwargs)
         logger.info(f"Successfully retrieved {data_type} data.")
         return format_df_to_markdown(df)
-        
+
     except NoDataFoundError as e:
         logger.warning(f"NoDataFoundError: {e}")
         return f"Error: {e}"
@@ -53,7 +49,8 @@ def safe_market_data_fetch(
         return f"Error: An unexpected error occurred: {e}"
 
 
-def register_market_overview_tools(app: FastMCP, active_data_source: FinancialDataSource):
+def register_market_overview_tools(app: FastMCP,
+                                   active_data_source: FinancialDataSource):
     """
     向MCP应用注册市场概览工具
 
@@ -63,7 +60,8 @@ def register_market_overview_tools(app: FastMCP, active_data_source: FinancialDa
     """
 
     @app.tool()
-    def get_trade_dates(start_date: Optional[str] = None, end_date: Optional[str] = None) -> str:
+    def get_trade_dates(start_date: Optional[str] = None,
+                        end_date: Optional[str] = None) -> str:
         """
         获取指定范围内的交易日信息
 
@@ -75,15 +73,14 @@ def register_market_overview_tools(app: FastMCP, active_data_source: FinancialDa
             指示范围内每个日期是否为交易日（1）或非交易日（0）的Markdown表格
         """
         logger.info(
-            f"Tool 'get_trade_dates' called for range {start_date or 'default'} to {end_date or 'default'}")
-        
-        return safe_market_data_fetch(
-            "get_trade_dates",
-            active_data_source.get_trade_dates,
-            "交易日",
-            start_date=start_date,
-            end_date=end_date
+            f"Tool 'get_trade_dates' called for range {start_date or 'default'} to {end_date or 'default'}"
         )
+
+        return safe_market_data_fetch("get_trade_dates",
+                                      active_data_source.get_trade_dates,
+                                      "交易日",
+                                      start_date=start_date,
+                                      end_date=end_date)
 
     @app.tool()
     def get_all_stock(date: Optional[str] = None) -> str:
@@ -98,11 +95,8 @@ def register_market_overview_tools(app: FastMCP, active_data_source: FinancialDa
         """
         logger.info(
             f"Tool 'get_all_stock' called for date={date or 'default'}")
-        
-        return safe_market_data_fetch(
-            "get_all_stock",
-            active_data_source.get_all_stock,
-            "所有股票",
-            date=date
-        )
 
+        return safe_market_data_fetch("get_all_stock",
+                                      active_data_source.get_all_stock,
+                                      "所有股票",
+                                      date=date)

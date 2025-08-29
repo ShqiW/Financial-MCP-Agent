@@ -27,8 +27,8 @@ class ChatCompletion:
 
 
 # 获取项目根目录
-project_root = os.path.dirname(os.path.dirname(
-    os.path.dirname(os.path.abspath(__file__))))
+project_root = os.path.dirname(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 env_path = os.path.join(project_root, '.env')
 
 # 加载环境变量
@@ -54,13 +54,10 @@ client = genai.Client(api_key=api_key)
 logger.info(f"{SUCCESS_ICON} Gemini 客户端初始化成功")
 
 
-@backoff.on_exception(
-    backoff.expo,
-    (Exception),
-    max_tries=5,
-    max_time=300,
-    giveup=lambda e: "AFC is enabled" not in str(e)
-)
+@backoff.on_exception(backoff.expo, (Exception),
+                      max_tries=5,
+                      max_time=300,
+                      giveup=lambda e: "AFC is enabled" not in str(e))
 def generate_content_with_retry(model, contents, config=None):
     """带重试机制的内容生成函数"""
     try:
@@ -68,11 +65,9 @@ def generate_content_with_retry(model, contents, config=None):
         logger.debug(f"请求内容: {contents}")
         logger.debug(f"请求配置: {config}")
 
-        response = client.models.generate_content(
-            model=model,
-            contents=contents,
-            config=config
-        )
+        response = client.models.generate_content(model=model,
+                                                  contents=contents,
+                                                  config=config)
 
         logger.info(f"{SUCCESS_ICON} API 调用成功")
         logger.debug(f"响应内容: {response.text[:500]}...")
@@ -91,8 +86,13 @@ def generate_content_with_retry(model, contents, config=None):
         raise e
 
 
-def get_chat_completion(messages, model=None, max_retries=3, initial_retry_delay=1,
-                        client_type="auto", api_key=None, base_url=None):
+def get_chat_completion(messages,
+                        model=None,
+                        max_retries=3,
+                        initial_retry_delay=1,
+                        client_type="auto",
+                        api_key=None,
+                        base_url=None):
     """
     获取聊天完成结果，包含重试逻辑
 
@@ -110,25 +110,23 @@ def get_chat_completion(messages, model=None, max_retries=3, initial_retry_delay
     """
     try:
         # 创建客户端
-        client = LLMClientFactory.create_client(
-            client_type=client_type,
-            api_key=api_key,
-            base_url=base_url,
-            model=model
-        )
+        client = LLMClientFactory.create_client(client_type=client_type,
+                                                api_key=api_key,
+                                                base_url=base_url,
+                                                model=model)
 
         # 获取回答
         response = client.get_completion(
             messages=messages,
             max_retries=max_retries,
-            initial_retry_delay=initial_retry_delay
-        )
+            initial_retry_delay=initial_retry_delay)
 
         # 检查响应格式，处理不同类型的返回值
         if isinstance(response, dict):
             # OpenAI 兼容 API 可能返回字典格式
             if 'choices' in response and len(response['choices']) > 0:
-                if 'message' in response['choices'][0] and 'content' in response['choices'][0]['message']:
+                if 'message' in response['choices'][
+                        0] and 'content' in response['choices'][0]['message']:
                     return response['choices'][0]['message']['content']
                 elif 'text' in response['choices'][0]:
                     return response['choices'][0]['text']
@@ -143,7 +141,8 @@ def get_chat_completion(messages, model=None, max_retries=3, initial_retry_delay
             return response.text
         elif hasattr(response, 'content'):
             return response.content
-        elif hasattr(response, 'message') and hasattr(response.message, 'content'):
+        elif hasattr(response, 'message') and hasattr(response.message,
+                                                      'content'):
             return response.message.content
 
         # 无法处理的响应格式

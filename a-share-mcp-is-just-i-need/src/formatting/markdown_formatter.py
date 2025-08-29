@@ -44,14 +44,15 @@ def format_df_to_markdown(df: pd.DataFrame, max_rows: int = None) -> str:
     # Check if actual row truncation occurred (only if original_rows > rows_to_show)
     if original_rows > rows_to_show:
         truncation_notes.append(
-            f"rows truncated to the limit of {rows_to_show} (from {original_rows})")
+            f"rows truncated to the limit of {rows_to_show} (from {original_rows})"
+        )
         truncated = True
 
     try:
         markdown_table = df_display.to_markdown(index=False)
     except Exception as e:
-        logger.error(
-            f"Error converting DataFrame to Markdown: {e}", exc_info=True)
+        logger.error(f"Error converting DataFrame to Markdown: {e}",
+                     exc_info=True)
         return "Error: Could not format data into Markdown table."
 
     if truncated:

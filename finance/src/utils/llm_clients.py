@@ -36,13 +36,10 @@ class GeminiClient(LLMClient):
         self.client = genai.Client(api_key=self.api_key)
         logger.info(f"{SUCCESS_ICON} Gemini 客户端初始化成功")
 
-    @backoff.on_exception(
-        backoff.expo,
-        (Exception),
-        max_tries=5,
-        max_time=300,
-        giveup=lambda e: "AFC is enabled" not in str(e)
-    )
+    @backoff.on_exception(backoff.expo, (Exception),
+                          max_tries=5,
+                          max_time=300,
+                          giveup=lambda e: "AFC is enabled" not in str(e))
     def generate_content_with_retry(self, contents, config=None):
         """带重试机制的内容生成函数"""
         try:
@@ -50,11 +47,9 @@ class GeminiClient(LLMClient):
             logger.debug(f"请求内容: {contents}")
             logger.debug(f"请求配置: {config}")
 
-            response = self.client.models.generate_content(
-                model=self.model,
-                contents=contents,
-                config=config
-            )
+            response = self.client.models.generate_content(model=self.model,
+                                                           contents=contents,
+                                                           config=config)
 
             logger.info(f"{SUCCESS_ICON} API 调用成功")
             logger.debug(f"响应内容: {response.text[:500]}...")
@@ -73,7 +68,11 @@ class GeminiClient(LLMClient):
                 logger.error(f"{ERROR_ICON} API 调用失败: {error_msg}")
             raise e
 
-    def get_completion(self, messages, max_retries=3, initial_retry_delay=1, **kwargs):
+    def get_completion(self,
+                       messages,
+                       max_retries=3,
+                       initial_retry_delay=1,
+                       **kwargs):
         """获取聊天完成结果，包含重试逻辑"""
         try:
             logger.info(f"{WAIT_ICON} 使用 Gemini 模型: {self.model}")
@@ -102,15 +101,14 @@ class GeminiClient(LLMClient):
 
                     # 调用 API
                     response = self.generate_content_with_retry(
-                        contents=prompt.strip(),
-                        config=config
-                    )
+                        contents=prompt.strip(), config=config)
 
                     if response is None:
                         logger.warning(
-                            f"{ERROR_ICON} 尝试 {attempt + 1}/{max_retries}: API 返回空值")
+                            f"{ERROR_ICON} 尝试 {attempt + 1}/{max_retries}: API 返回空值"
+                        )
                         if attempt < max_retries - 1:
-                            retry_delay = initial_retry_delay * (2 ** attempt)
+                            retry_delay = initial_retry_delay * (2**attempt)
                             logger.info(
                                 f"{WAIT_ICON} 等待 {retry_delay} 秒后重试...")
                             time.sleep(retry_delay)
@@ -125,9 +123,10 @@ class GeminiClient(LLMClient):
 
                 except Exception as e:
                     logger.error(
-                        f"{ERROR_ICON} 尝试 {attempt + 1}/{max_retries} 失败: {str(e)}")
+                        f"{ERROR_ICON} 尝试 {attempt + 1}/{max_retries} 失败: {str(e)}"
+                    )
                     if attempt < max_retries - 1:
-                        retry_delay = initial_retry_delay * (2 ** attempt)
+                        retry_delay = initial_retry_delay * (2**attempt)
                         logger.info(f"{WAIT_ICON} 等待 {retry_delay} 秒后重试...")
                         time.sleep(retry_delay)
                     else:
@@ -155,7 +154,8 @@ class OpenAICompatibleClient(LLMClient):
         if not self.base_url:
             logger.error(f"{ERROR_ICON} 未找到 OPENAI_COMPATIBLE_BASE_URL 环境变量")
             raise ValueError(
-                "OPENAI_COMPATIBLE_BASE_URL not found in environment variables")
+                "OPENAI_COMPATIBLE_BASE_URL not found in environment variables"
+            )
 
         if not self.model:
             logger.error(f"{ERROR_ICON} 未找到 OPENAI_COMPATIBLE_MODEL 环境变量")
@@ -163,18 +163,10 @@ class OpenAICompatibleClient(LLMClient):
                 "OPENAI_COMPATIBLE_MODEL not found in environment variables")
 
         # 初始化 OpenAI 客户端
-        self.client = OpenAI(
-            base_url=self.base_url,
-            api_key=self.api_key
-        )
+        self.client = OpenAI(base_url=self.base_url, api_key=self.api_key)
         logger.info(f"{SUCCESS_ICON} OpenAI Compatible 客户端初始化成功")
 
-    @backoff.on_exception(
-        backoff.expo,
-        (Exception),
-        max_tries=5,
-        max_time=300
-    )
+    @backoff.on_exception(backoff.expo, (Exception), max_tries=5, max_time=300)
     def call_api_with_retry(self, messages, stream=False):
         """带重试机制的 API 调用函数"""
         try:
@@ -182,11 +174,9 @@ class OpenAICompatibleClient(LLMClient):
             logger.debug(f"请求内容: {messages}")
             logger.debug(f"模型: {self.model}, 流式: {stream}")
 
-            response = self.client.chat.completions.create(
-                model=self.model,
-                messages=messages,
-                stream=stream
-            )
+            response = self.client.chat.completions.create(model=self.model,
+                                                           messages=messages,
+                                                           stream=stream)
 
             logger.info(f"{SUCCESS_ICON} API 调用成功")
             return response
@@ -195,7 +185,11 @@ class OpenAICompatibleClient(LLMClient):
             logger.error(f"{ERROR_ICON} API 调用失败: {error_msg}")
             raise e
 
-    def get_completion(self, messages, max_retries=3, initial_retry_delay=1, **kwargs):
+    def get_completion(self,
+                       messages,
+                       max_retries=3,
+                       initial_retry_delay=1,
+                       **kwargs):
         """获取聊天完成结果，包含重试逻辑"""
         try:
             logger.info(f"{WAIT_ICON} 使用 OpenAI Compatible 模型: {self.model}")
@@ -208,9 +202,10 @@ class OpenAICompatibleClient(LLMClient):
 
                     if response is None:
                         logger.warning(
-                            f"{ERROR_ICON} 尝试 {attempt + 1}/{max_retries}: API 返回空值")
+                            f"{ERROR_ICON} 尝试 {attempt + 1}/{max_retries}: API 返回空值"
+                        )
                         if attempt < max_retries - 1:
-                            retry_delay = initial_retry_delay * (2 ** attempt)
+                            retry_delay = initial_retry_delay * (2**attempt)
                             logger.info(
                                 f"{WAIT_ICON} 等待 {retry_delay} 秒后重试...")
                             time.sleep(retry_delay)
@@ -222,14 +217,20 @@ class OpenAICompatibleClient(LLMClient):
 
                     # 如果响应是字典类型（某些兼容API可能直接返回字典）
                     if isinstance(response, dict):
-                        if 'choices' in response and len(response['choices']) > 0:
-                            if 'message' in response['choices'][0] and 'content' in response['choices'][0]['message']:
-                                content = response['choices'][0]['message']['content']
+                        if 'choices' in response and len(
+                                response['choices']) > 0:
+                            if 'message' in response['choices'][
+                                    0] and 'content' in response['choices'][0][
+                                        'message']:
+                                content = response['choices'][0]['message'][
+                                    'content']
                             elif 'text' in response['choices'][0]:
                                 content = response['choices'][0]['text']
                     # 如果响应是OpenAI标准对象
-                    elif hasattr(response, 'choices') and len(response.choices) > 0:
-                        if hasattr(response.choices[0], 'message') and hasattr(response.choices[0].message, 'content'):
+                    elif hasattr(response, 'choices') and len(
+                            response.choices) > 0:
+                        if hasattr(response.choices[0], 'message') and hasattr(
+                                response.choices[0].message, 'content'):
                             content = response.choices[0].message.content
 
                     # 如果无法提取内容，尝试其他方法
@@ -251,7 +252,7 @@ class OpenAICompatibleClient(LLMClient):
                     else:
                         logger.warning(f"{ERROR_ICON} 无法从响应中提取内容")
                         if attempt < max_retries - 1:
-                            retry_delay = initial_retry_delay * (2 ** attempt)
+                            retry_delay = initial_retry_delay * (2**attempt)
                             logger.info(
                                 f"{WAIT_ICON} 等待 {retry_delay} 秒后重试...")
                             time.sleep(retry_delay)
@@ -260,9 +261,10 @@ class OpenAICompatibleClient(LLMClient):
 
                 except Exception as e:
                     logger.error(
-                        f"{ERROR_ICON} 尝试 {attempt + 1}/{max_retries} 失败: {str(e)}")
+                        f"{ERROR_ICON} 尝试 {attempt + 1}/{max_retries} 失败: {str(e)}"
+                    )
                     if attempt < max_retries - 1:
-                        retry_delay = initial_retry_delay * (2 ** attempt)
+                        retry_delay = initial_retry_delay * (2**attempt)
                         logger.info(f"{WAIT_ICON} 等待 {retry_delay} 秒后重试...")
                         time.sleep(retry_delay)
                     else:
@@ -301,15 +303,11 @@ class LLMClientFactory:
                 logger.info(f"{WAIT_ICON} 自动选择 Gemini API")
 
         if client_type == "gemini":
-            return GeminiClient(
-                api_key=kwargs.get("api_key"),
-                model=kwargs.get("model")
-            )
+            return GeminiClient(api_key=kwargs.get("api_key"),
+                                model=kwargs.get("model"))
         elif client_type == "openai_compatible":
-            return OpenAICompatibleClient(
-                api_key=kwargs.get("api_key"),
-                base_url=kwargs.get("base_url"),
-                model=kwargs.get("model")
-            )
+            return OpenAICompatibleClient(api_key=kwargs.get("api_key"),
+                                          base_url=kwargs.get("base_url"),
+                                          model=kwargs.get("model"))
         else:
             raise ValueError(f"不支持的客户端类型: {client_type}")

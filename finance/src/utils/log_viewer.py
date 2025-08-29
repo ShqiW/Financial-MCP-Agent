@@ -58,7 +58,8 @@ class LogViewer:
 
         return executions
 
-    def get_execution_details(self, execution_id: str) -> Optional[Dict[str, Any]]:
+    def get_execution_details(self,
+                              execution_id: str) -> Optional[Dict[str, Any]]:
         """
         获取特定执行的详细信息
 
@@ -126,7 +127,8 @@ class LogViewer:
 
         if 'total_execution_time_seconds' in execution_info:
             print(
-                f"总执行时间: {execution_info['total_execution_time_seconds']:.2f} 秒")
+                f"总执行时间: {execution_info['total_execution_time_seconds']:.2f} 秒"
+            )
 
         status = execution_info.get('status', 'Unknown')
         status_icon = "✅" if execution_info.get('success', False) else "❌"
@@ -181,12 +183,15 @@ class LogViewer:
 
         for interaction in llm_interactions:
             print(
-                f"\n🤖 {interaction.get('agent_name', 'Unknown')} - {interaction.get('interaction_type', 'Unknown')}")
+                f"\n🤖 {interaction.get('agent_name', 'Unknown')} - {interaction.get('interaction_type', 'Unknown')}"
+            )
             print(f"  时间: {interaction.get('timestamp', 'Unknown')}")
             print(
-                f"  模型: {interaction.get('model_config', {}).get('model', 'Unknown')}")
+                f"  模型: {interaction.get('model_config', {}).get('model', 'Unknown')}"
+            )
             print(
-                f"  执行时间: {interaction.get('performance', {}).get('execution_time_seconds', 0):.2f} 秒")
+                f"  执行时间: {interaction.get('performance', {}).get('execution_time_seconds', 0):.2f} 秒"
+            )
 
             input_info = interaction.get('input', {})
             print(f"  输入消息数: {input_info.get('message_count', 0)}")
@@ -207,7 +212,8 @@ class LogViewer:
         for tool_log in tool_usage:
             status_icon = "✅" if tool_log.get('success', True) else "❌"
             print(
-                f"\n{status_icon} {tool_log.get('tool_name', 'Unknown')} (by {tool_log.get('agent_name', 'Unknown')})")
+                f"\n{status_icon} {tool_log.get('tool_name', 'Unknown')} (by {tool_log.get('agent_name', 'Unknown')})"
+            )
             print(f"  时间: {tool_log.get('timestamp', 'Unknown')}")
             print(f"  执行时间: {tool_log.get('execution_time_seconds', 0):.2f} 秒")
 
@@ -269,7 +275,8 @@ class LogViewer:
 
             if 'total_execution_time_seconds' in execution:
                 print(
-                    f"   耗时: {execution['total_execution_time_seconds']:.2f} 秒")
+                    f"   耗时: {execution['total_execution_time_seconds']:.2f} 秒"
+                )
 
             if 'environment' in execution:
                 env = execution['environment']['environment_variables']
@@ -283,8 +290,9 @@ def main():
     parser.add_argument("--list", "-l", action="store_true", help="列出最近的执行记录")
     parser.add_argument("--show", "-s", type=str, help="显示特定执行ID的详细信息")
     parser.add_argument("--limit", type=int, default=5, help="列出记录的数量限制")
-    parser.add_argument(
-        "--summary-only", action="store_true", help="只显示摘要，不显示详细信息")
+    parser.add_argument("--summary-only",
+                        action="store_true",
+                        help="只显示摘要，不显示详细信息")
     parser.add_argument("--log-dir", type=str, default="logs", help="日志目录路径")
 
     args = parser.parse_args()

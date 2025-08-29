@@ -12,7 +12,8 @@ from src.formatting.markdown_formatter import format_df_to_markdown
 logger = logging.getLogger(__name__)
 
 
-def register_analysis_tools(app: FastMCP, active_data_source: FinancialDataSource):
+def register_analysis_tools(app: FastMCP,
+                            active_data_source: FinancialDataSource):
     """
     向MCP应用注册分析工具
 
@@ -22,7 +23,8 @@ def register_analysis_tools(app: FastMCP, active_data_source: FinancialDataSourc
     """
 
     @app.tool()
-    def get_stock_analysis(code: str, analysis_type: str = "fundamental") -> str:
+    def get_stock_analysis(code: str,
+                           analysis_type: str = "fundamental") -> str:
         """
         提供基于数据的股票分析报告，而非投资建议。
 
@@ -34,7 +36,8 @@ def register_analysis_tools(app: FastMCP, active_data_source: FinancialDataSourc
             数据驱动的分析报告，包含关键财务指标、历史表现和同行业比较
         """
         logger.info(
-            f"Tool 'get_stock_analysis' called for {code}, type={analysis_type}")
+            f"Tool 'get_stock_analysis' called for {code}, type={analysis_type}"
+        )
 
         # 收集多个维度的实际数据
         try:
@@ -62,11 +65,10 @@ def register_analysis_tools(app: FastMCP, active_data_source: FinancialDataSourc
             if analysis_type in ["technical", "comprehensive"]:
                 # 获取历史价格
                 end_date = datetime.now().strftime("%Y-%m-%d")
-                start_date = (datetime.now() - timedelta(days=180)
-                              ).strftime("%Y-%m-%d")
+                start_date = (datetime.now() -
+                              timedelta(days=180)).strftime("%Y-%m-%d")
                 price_data = active_data_source.get_historical_k_data(
-                    code=code, start_date=start_date, end_date=end_date
-                )
+                    code=code, start_date=start_date, end_date=end_date)
 
             # 构建客观的数据分析报告
             report = f"# {basic_info['code_name'].values[0] if not basic_info.empty else code} 数据分析报告\n\n"
@@ -81,7 +83,8 @@ def register_analysis_tools(app: FastMCP, active_data_source: FinancialDataSourc
                 report += f"- 上市日期: {basic_info['ipoDate'].values[0] if 'ipoDate' in basic_info.columns else '未知'}\n\n"
 
             # 添加基本面分析
-            if analysis_type in ["fundamental", "comprehensive"] and not profit_data.empty:
+            if analysis_type in ["fundamental", "comprehensive"
+                                 ] and not profit_data.empty:
                 report += f"## 基本面指标分析 ({recent_year}年第{recent_quarter}季度)\n\n"
 
                 # 盈利能力
@@ -117,7 +120,8 @@ def register_analysis_tools(app: FastMCP, active_data_source: FinancialDataSourc
                         report += f"- 资产负债率: {debt_ratio}%\n"
 
             # 添加技术面分析
-            if analysis_type in ["technical", "comprehensive"] and not price_data.empty:
+            if analysis_type in ["technical", "comprehensive"
+                                 ] and not price_data.empty:
                 report += "## 技术面分析\n\n"
 
                 # 计算简单的技术指标
@@ -133,8 +137,8 @@ def register_analysis_tools(app: FastMCP, active_data_source: FinancialDataSourc
 
                     # 计算简单的均线
                     if len(price_data) >= 20:
-                        ma20 = price_data['close'].astype(
-                            float).tail(20).mean()
+                        ma20 = price_data['close'].astype(float).tail(
+                            20).mean()
                         report += f"- 20日均价: {ma20:.2f}\n"
                         if float(latest_price) > ma20:
                             report += f"  (当前价格高于20日均线 {((float(latest_price)/ma20)-1)*100:.2f}%)\n"
@@ -148,7 +152,8 @@ def register_analysis_tools(app: FastMCP, active_data_source: FinancialDataSourc
                     industry_stocks = active_data_source.get_stock_industry(
                         date=None)
                     if not industry_stocks.empty:
-                        same_industry = industry_stocks[industry_stocks['industry'] == industry]
+                        same_industry = industry_stocks[
+                            industry_stocks['industry'] == industry]
                         report += f"\n## 行业比较 ({industry})\n"
                         report += f"- 同行业股票数量: {len(same_industry)}\n"
 
@@ -167,4 +172,3 @@ def register_analysis_tools(app: FastMCP, active_data_source: FinancialDataSourc
         except Exception as e:
             logger.exception(f"分析生成失败 for {code}: {e}")
             return f"分析生成失败: {e}"
-

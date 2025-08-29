@@ -10,7 +10,9 @@ from ..data_source_interface import FinancialDataSource
 
 logger = logging.getLogger(__name__)
 
-def register_news_crawler_tools(app: FastMCP, data_source: FinancialDataSource):
+
+def register_news_crawler_tools(app: FastMCP,
+                                data_source: FinancialDataSource):
     """
     注册新闻爬虫工具
     
@@ -18,7 +20,7 @@ def register_news_crawler_tools(app: FastMCP, data_source: FinancialDataSource):
         app: FastMCP应用实例
         data_source: 数据源实例
     """
-    
+
     @app.tool()
     def crawl_news(query: str, top_k: int = 10) -> str:
         """
@@ -51,5 +53,3 @@ def register_news_crawler_tools(app: FastMCP, data_source: FinancialDataSource):
         except Exception as e:
             logger.error(f"爬取新闻时出错: {e}")
             return f"爬取新闻时出错: {str(e)}"
-    
-    

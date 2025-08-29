@@ -127,3 +127,7 @@ tutorial/
 docs/
 logs/
 reports/
+Fin-R1/
+Qwen3-8B
+Qwen
+*.csv
